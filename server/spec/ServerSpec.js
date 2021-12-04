@@ -91,4 +91,22 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  //
+
+  //Make a response for hitting the default route.
+  it ('Should 403 when put in a default route', function() {
+    var req = new stubs.request('/', 'GET');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(403);
+    expect(res._ended).to.equal(true);
+  });
+
+  //have tests for the options route.
+  //will get two posts if two posts are made.
+  //it shouldn't post anything if a get request is made with a message
+  //if a post request is missing a body, it should return an error.
+
 });
