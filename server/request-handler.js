@@ -21,13 +21,7 @@ var defaultCorsHeaders = {
 
 var index = 1;
 
-var messages = [{
-  'username': 'David',
-  'text': 'Fallout is awesome',
-  'roomname': 'lobby',
-  'message_id': '99999',
-  'createdAt': Date()
-}];
+var messages = [];
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -61,15 +55,21 @@ var requestHandler = function(request, response) {
     });
     request.on('end', () => {
       data = JSON.parse(data);
-      console.log(data);
-      data['createdAt'] = Date();
-      data['message_id'] = index;
-      index++;
-      messages.push(data);
-      statusCode = 201;
-      headers['Content-Type'] = 'text/plain';
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(messages));
+      if (data.text === '') {
+        statusCode = 400;
+        headers['Content-Type'] = 'text/plain';
+        response.writeHead(statusCode, headers);
+        response.end();
+      } else {
+        data['createdAt'] = Date();
+        data['message_id'] = index;
+        index++;
+        messages.push(data);
+        statusCode = 201;
+        headers['Content-Type'] = 'text/plain';
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify(messages));
+      }
     });
   }
   if (request.method === 'OPTIONS' && request.url === '/classes/messages') {

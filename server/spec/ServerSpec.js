@@ -105,8 +105,87 @@ describe('Node Server Request Listener Function', function() {
   });
 
   //have tests for the options route.
+  it ('Should 200 when put in a options route', function() {
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    expect(res._ended).to.equal(true);
+  });
+
   //will get two posts if two posts are made.
+  it('Should respond with two posts if two posts are made', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+    // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data);
+    expect(messages.length).to.be.above(1);
+    expect(messages[0].username).to.equal('Jono');
+    expect(messages[0].text).to.equal('Do my bidding!');
+    expect(res._ended).to.equal(true);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data);
+    expect(messages.length).to.be.above(2);
+    expect(messages[1].username).to.equal('Jono');
+    expect(messages[1].text).to.equal('Do my bidding!');
+    expect(res._ended).to.equal(true);
+  });
   //it shouldn't post anything if a get request is made with a message
-  //if a post request is missing a body, it should return an error.
+  it ('shouldn\'t post anything if a get request is made with a message', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'This should not exist!'
+    };
+    var req = new stubs.request('/classes/messages', 'GET', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+
+    // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data);
+    expect(messages[messages.length - 1].text).to.not.equal('This should not exist!');
+    expect(res._ended).to.equal(true);
+  });
+  //if a post request is missing a text body, it should return an error.
+  it ('Should return a 400 error when missing a body', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: ''
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(400);
+    expect(res._ended).to.equal(true);
+  });
 
 });

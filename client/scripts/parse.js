@@ -1,6 +1,6 @@
 var Parse = {
 
-  server: `http://127.0.0.1:3000/classes/messages`,
+  server: 'http://127.0.0.1:3000/classes/messages',
 
   create: function(message, successCB, errorCB = null) {
 
@@ -9,7 +9,9 @@ var Parse = {
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
-      success: successCB,
+      success: (data) => {
+        successCB(JSON.parse(data));
+      },
       error: errorCB || function (error) {
         console.error('chatterbox: Failed to create message', error);
       }
